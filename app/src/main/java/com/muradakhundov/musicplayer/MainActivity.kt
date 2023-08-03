@@ -21,6 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 1
+        var isShuffleOn = false
+        var isRepeatOn = false
         var musicFiles : ArrayList<MusicFiles> = ArrayList()
     }
 
@@ -28,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        Log.e("tag", "onCreate is called")
         val adapter = ViewPagerAdapter(this)
         binding.viewpager.adapter = adapter
 
@@ -59,7 +60,6 @@ class MainActivity : AppCompatActivity() {
             )
         } else {
             // Permission already granted
-            Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
             musicFiles = getAllAudio(this)
         }
     }
@@ -73,11 +73,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == WRITE_EXTERNAL_STORAGE_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
-                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                 musicFiles = getAllAudio(this)
             } else {
                 // Permission denied
-                Toast.makeText(this, "Permission Denied. The app requires storage permission to function.", Toast.LENGTH_SHORT).show()
                 // Handle the situation when permission is denied
             }
         }
@@ -93,6 +91,7 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media._ID
         )
 
         var cursor = context.contentResolver.query(uri,projection,null,null,null)
@@ -103,8 +102,9 @@ class MainActivity : AppCompatActivity() {
                 var duration = cursor.getString(2) ?: "Unknown Duration"
                 var path = cursor.getString(3)
                 var artist = cursor.getString(4)
+                var id = cursor.getString(5)
 
-                var musicFiles = MusicFiles(path,title,artist,album, duration)
+                var musicFiles = MusicFiles(path,title,artist,album, duration,id)
                 tempAudioList.add(musicFiles)
             }
         }

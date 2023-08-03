@@ -1,12 +1,18 @@
 package com.muradakhundov.musicplayer.adapter
 
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -17,6 +23,7 @@ import com.muradakhundov.musicplayer.databinding.MusicItemsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>) : RecyclerView.Adapter<MusicAdapter.MusicDesignHolder>() {
     private val albumArtCache: MutableMap<Uri, ByteArray?> = HashMap()
@@ -56,8 +63,54 @@ class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>
             mContext.startActivity(intent)
         }
 
+        b.moreMenu.setOnClickListener {
+            var popupMenu = PopupMenu(mContext,it)
+            popupMenu.menuInflater.inflate(R.menu.popup,popupMenu.menu)
+            popupMenu.show()
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.delete -> deleteFile(position, it)
+                    else -> {
+                        // Handle other menu item clicks, if necessary.
+                        // If you don't need to do anything for other menu items, you can omit this block.
+                    }
+                }
+                true // Return true to indicate that the click event has been handled.
+            }
 
 
+        }
+
+
+
+    }
+
+    fun deleteFile(position: Int, v: View) {
+        val music = musicList[position]
+        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, music.id.toLong())
+        val file = File(music.path)
+
+        try {
+            if (file.exists()) {
+                val deleted = file.delete()
+                if (deleted) {
+                    mContext.contentResolver.delete(contentUri, null, null)
+                    musicList.removeAt(position)
+                    notifyItemRemoved(position)
+                    notifyItemRangeChanged(position, musicList.size)
+                    Toast.makeText(mContext, "File Deleted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("DeleteFile", "File couldn't be deleted: ${file.absolutePath}")
+                    Toast.makeText(mContext, "Cannot Delete", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Log.e("DeleteFile", "File not found: ${file.absolutePath}")
+                Toast.makeText(mContext, "File not found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e("DeleteFile", "Error deleting file: ${e.message}")
+            Toast.makeText(mContext, "Error deleting file", Toast.LENGTH_SHORT).show()
+        }
     }
 
 

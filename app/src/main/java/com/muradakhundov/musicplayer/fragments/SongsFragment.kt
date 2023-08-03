@@ -19,7 +19,7 @@ class SongsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentSongsBinding.inflate(layoutInflater)
+        binding = FragmentSongsBinding.inflate(layoutInflater,container,false)
 
         binding.recyclerView.setHasFixedSize(true)
         if (!(musicFiles.size < 1)){

@@ -7,5 +7,6 @@ data class MusicFiles(
     var title: String,
     var artist : String,
     var album : String,
-    var duration : String
+    var duration : String,
+    var id : String
 ) : Serializable
