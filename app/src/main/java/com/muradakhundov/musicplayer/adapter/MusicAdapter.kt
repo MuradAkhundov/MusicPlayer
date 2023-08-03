@@ -25,9 +25,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 
-class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>) : RecyclerView.Adapter<MusicAdapter.MusicDesignHolder>() {
-    private val albumArtCache: MutableMap<Uri, ByteArray?> = HashMap()
-    inner class MusicDesignHolder(val binding: MusicItemsBinding) : RecyclerView.ViewHolder(binding.root)
+class MusicAdapter(var mContext: Context, var musicList: ArrayList<MusicFiles>) :
+    RecyclerView.Adapter<MusicAdapter.MusicDesignHolder>() {
+
+    inner class MusicDesignHolder(val binding: MusicItemsBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicDesignHolder {
         val binding = MusicItemsBinding.inflate(LayoutInflater.from(mContext))
@@ -41,31 +43,30 @@ class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>
     override fun onBindViewHolder(holder: MusicDesignHolder, position: Int) {
         val b = holder.binding
         val myList = musicList.get(position)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             val image = getAlbumArt(myList.path.toUri())
+        val image = getAlbumArt(myList.path.toUri())
 
 
         b.nameMusic.text = myList.title
 
-          if (image != null) {
-              Glide.with(mContext).asBitmap()
-                  .load(image)
-                  .into(b.imageMusic)
-          }
-        else{
-              Glide.with(mContext).asBitmap()
-                  .load(R.drawable.defaultimg)
-                  .into(b.imageMusic)
-          }
+        if (image != null) {
+            Glide.with(mContext).asBitmap()
+                .load(image)
+                .into(b.imageMusic)
+        } else {
+            Glide.with(mContext).asBitmap()
+                .load(R.drawable.defaultimg)
+                .into(b.imageMusic)
+        }
 
         b.root.setOnClickListener {
-            var intent = Intent(mContext,PlayerActivity::class.java)
-            intent.putExtra("position",position)
+            var intent = Intent(mContext, PlayerActivity::class.java)
+            intent.putExtra("position", position)
             mContext.startActivity(intent)
         }
 
         b.moreMenu.setOnClickListener {
-            var popupMenu = PopupMenu(mContext,it)
-            popupMenu.menuInflater.inflate(R.menu.popup,popupMenu.menu)
+            var popupMenu = PopupMenu(mContext, it)
+            popupMenu.menuInflater.inflate(R.menu.popup, popupMenu.menu)
             popupMenu.show()
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -82,12 +83,14 @@ class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>
         }
 
 
-
     }
 
     fun deleteFile(position: Int, v: View) {
         val music = musicList[position]
-        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, music.id.toLong())
+        val contentUri = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            music.id.toLong()
+        )
         val file = File(music.path)
 
         try {
@@ -127,4 +130,5 @@ class MusicAdapter(var mContext : Context, var musicList : ArrayList<MusicFiles>
             retriever.release()
         }
         return null
-    }    }
+    }
+}

@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         var isShuffleOn = false
         var isRepeatOn = false
         var musicFiles : ArrayList<MusicFiles> = ArrayList()
+        var albums : ArrayList<MusicFiles> = ArrayList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +84,7 @@ class MainActivity : AppCompatActivity() {
 
 
     fun getAllAudio(context : Context) : ArrayList<MusicFiles> {
+        var duplicate : ArrayList<String> = ArrayList()
         var tempAudioList = ArrayList<MusicFiles>()
         var uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         var projection = arrayOf(
@@ -106,6 +108,10 @@ class MainActivity : AppCompatActivity() {
 
                 var musicFiles = MusicFiles(path,title,artist,album, duration,id)
                 tempAudioList.add(musicFiles)
+                if (!duplicate.contains(album)){
+                    albums.add(musicFiles)
+                    duplicate.add(album)
+                }
             }
         }
         return tempAudioList

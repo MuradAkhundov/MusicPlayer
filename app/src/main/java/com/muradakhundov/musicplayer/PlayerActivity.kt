@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide
 import com.muradakhundov.musicplayer.MainActivity.Companion.isRepeatOn
 import com.muradakhundov.musicplayer.MainActivity.Companion.isShuffleOn
 import com.muradakhundov.musicplayer.MainActivity.Companion.musicFiles
+import com.muradakhundov.musicplayer.adapter.AlbumDetailsAdapter
 import com.muradakhundov.musicplayer.databinding.ActivityPlayerBinding
 import kotlin.random.Random
 
@@ -31,7 +32,6 @@ class PlayerActivity : AppCompatActivity() , MediaPlayer.OnCompletionListener {
     lateinit var uri : Uri
     lateinit var mediaPlayer : MediaPlayer
     var position = 1
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -115,17 +115,27 @@ class PlayerActivity : AppCompatActivity() , MediaPlayer.OnCompletionListener {
 
     fun getIntentMethod(){
         position = intent.getIntExtra("position",-1)
-        listSongs = musicFiles
+        var albumSongs = intent.getSerializableExtra("list") as? ArrayList<MusicFiles>
+        var sender = intent.getStringExtra("sender")
+        if (sender != null && sender.equals("albumDetails") && albumSongs != null){
+            listSongs = albumSongs
+        }
+        else{
+            listSongs = musicFiles
+        }
+
+
         if (listSongs != null){
             binding.playPause.setImageResource(R.drawable.pause_ic)
             uri = Uri.parse(listSongs.get(position).path)
         }
-        if (mediaPlayer != null){
+        if (mediaPlayer != null && mediaPlayer.isPlaying){
             mediaPlayer.stop()
             mediaPlayer.release()
             mediaPlayer = MediaPlayer.create(applicationContext,uri)
             mediaPlayer.start()
         }
+
         else{
             mediaPlayer = MediaPlayer.create(applicationContext,uri)
             mediaPlayer.start()
@@ -133,6 +143,10 @@ class PlayerActivity : AppCompatActivity() , MediaPlayer.OnCompletionListener {
         binding.seekbar.max = mediaPlayer.duration / 1000
         metaData(uri)
     }
+    companion object{
+        var listSongs = ArrayList<MusicFiles>()
+    }
+
 
     fun metaData(uri : Uri){
         var retriever = MediaMetadataRetriever()
@@ -421,9 +435,6 @@ class PlayerActivity : AppCompatActivity() , MediaPlayer.OnCompletionListener {
         imageView.startAnimation(animOut)
     }
 
-    companion object{
-        var listSongs = ArrayList<MusicFiles>()
-    }
 
     override fun onCompletion(mp: MediaPlayer?) {
         nextBtnClicked()
