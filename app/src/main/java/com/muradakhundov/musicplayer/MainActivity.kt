@@ -6,17 +6,21 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayoutMediator
+import com.muradakhundov.musicplayer.adapter.MusicAdapter
 import com.muradakhundov.musicplayer.adapter.ViewPagerAdapter
 import com.muradakhundov.musicplayer.databinding.ActivityMainBinding
+import com.muradakhundov.musicplayer.fragments.SongsFragment.Companion.musicAdapter
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var mediaSession: MediaSessionCompat
 
 
     companion object {
@@ -34,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = ViewPagerAdapter(this)
         binding.viewpager.adapter = adapter
 
+        mediaSession = MediaSessionCompat(this, "MusicService")
 
         permission()
         TabLayoutMediator(binding.tabLayout, binding.viewpager) { tab, position ->
@@ -44,7 +49,36 @@ class MainActivity : AppCompatActivity() {
         }.attach()
 
 
+        setUpSearchView()
         setContentView(binding.root)
+    }
+
+
+    fun setUpSearchView(){
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                TODO("Not yet implemented")
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                var myFiles : ArrayList<MusicFiles> = ArrayList()
+                if (newText!=null){
+                    var userInput = newText.toLowerCase()
+
+                    for (song in musicFiles){
+                        if (song.title.toLowerCase().contains(userInput)){
+                            myFiles.add(song)
+                            MusicAdapter.setStaticValues(applicationContext,myFiles)
+                        }
+                    }
+
+                }
+                musicAdapter.updateList(myFiles)
+                return true
+
+            }
+
+        })
     }
 
     fun permission() {

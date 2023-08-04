@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -20,13 +19,23 @@ import com.muradakhundov.musicplayer.MusicFiles
 import com.muradakhundov.musicplayer.PlayerActivity
 import com.muradakhundov.musicplayer.R
 import com.muradakhundov.musicplayer.databinding.MusicItemsBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import com.muradakhundov.musicplayer.fragments.SongsFragment
 import kotlinx.coroutines.launch
 import java.io.File
 
 class MusicAdapter(var mContext: Context, var musicList: ArrayList<MusicFiles>) :
     RecyclerView.Adapter<MusicAdapter.MusicDesignHolder>() {
+
+    companion object{
+        private lateinit var staticMusicList : ArrayList<MusicFiles>
+        private lateinit var staticContext : Context
+        fun setStaticValues(context: Context , list: ArrayList<MusicFiles>){
+            staticContext = context
+            staticMusicList = list
+        }
+        fun getList() : ArrayList<MusicFiles> = staticMusicList
+        fun getContext() : Context = staticContext
+    }
 
     inner class MusicDesignHolder(val binding: MusicItemsBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -130,5 +139,11 @@ class MusicAdapter(var mContext: Context, var musicList: ArrayList<MusicFiles>) 
             retriever.release()
         }
         return null
+    }
+
+    fun updateList(musicFilesArr : ArrayList<MusicFiles>){
+        musicList = ArrayList()
+        musicList.addAll(musicFilesArr)
+        notifyDataSetChanged()
     }
 }
