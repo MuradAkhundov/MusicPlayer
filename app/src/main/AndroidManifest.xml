@@ -36,7 +36,15 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.muradakhundov.musicplayer.service.MusicService" />
+        <service android:name="com.muradakhundov.musicplayer.service.MusicService" android:enabled="true"/>
+        <receiver android:name="com.muradakhundov.musicplayer.receiver.NotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="actionprevious"/>
+                <action android:name="actionnext"/>
+                <action android:name="actionplay"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

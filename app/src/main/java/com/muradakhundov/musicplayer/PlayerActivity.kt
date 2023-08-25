@@ -13,6 +13,7 @@ import android.graphics.drawable.GradientDrawable
 import android.icu.number.IntegerWidth
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.media.MediaPlayer.OnCompletionListener
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -36,6 +37,9 @@ import com.muradakhundov.musicplayer.MainActivity.Companion.musicFiles
 import com.muradakhundov.musicplayer.adapter.AlbumDetailsAdapter
 import com.muradakhundov.musicplayer.adapter.MusicAdapter.Companion.getList
 import com.muradakhundov.musicplayer.databinding.ActivityPlayerBinding
+import com.muradakhundov.musicplayer.receiver.NotificationReceiver
+import com.muradakhundov.musicplayer.service.ApplicationClass.Companion.ACTION_NEXT
+import com.muradakhundov.musicplayer.service.ApplicationClass.Companion.ACTION_PLAY
 import com.muradakhundov.musicplayer.service.ApplicationClass.Companion.ACTION_PREVIOUS
 import com.muradakhundov.musicplayer.service.ApplicationClass.Companion.CHANNEL_ID_2
 import com.muradakhundov.musicplayer.service.MusicService
@@ -51,6 +55,11 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
     var position = 1
     private lateinit var mediaSession: MediaSessionCompat
     lateinit var musicService: MusicService
+
+    companion object {
+        var listSongs = ArrayList<MusicFiles>()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -143,15 +152,20 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
             uri = Uri.parse(listSongs.get(position).path)
         }
 
+//        if (musicService != null){
+//            musicService.stop()
+//            musicService.release()
+//        }
+//        musicService.createMediaPLayer(position)
+//        musicService.start()
+
+
         showNotification(R.drawable.pause_ic)
         var intent = Intent(this, MusicService::class.java)
         intent.putExtra("servicePosition", position)
         startService(intent)
-
-    }
-
-    companion object {
-        var listSongs = ArrayList<MusicFiles>()
+//        binding.seekbar.max = musicService.getDuration() / 1000
+//        metaData(uri)
     }
 
 
@@ -225,10 +239,10 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
     override fun onResume() {
         var intent = Intent(this, MusicService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
-        super.onResume()
         playThreadBtn()
         nextThreadBtn()
         prevThreadBtn()
+        super.onResume()
 
     }
 
@@ -320,6 +334,7 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
             metaData(uri)
             binding.songName.text = listSongs.get(position).title
             binding.songArtist.text = listSongs.get(position).artist
+            binding.seekbar.max = musicService.getDuration() / 1000
             this.runOnUiThread(object : Runnable {
                 override fun run() {
                     if (musicService != null) {
@@ -408,6 +423,7 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
             metaData(uri)
             binding.songName.text = listSongs.get(position).title
             binding.songArtist.text = listSongs.get(position).artist
+            binding.seekbar.max = musicService.getDuration() / 1000
             this.runOnUiThread(object : Runnable {
                 override fun run() {
                     if (musicService != null) {
@@ -462,6 +478,7 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         var myBinder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = myBinder.getService()
+        musicService.setCallBack(this)
         Toast.makeText(this, "Connected $musicService", Toast.LENGTH_SHORT).show()
         binding.seekbar.max = musicService.getDuration() / 1000
         metaData(uri)
@@ -474,22 +491,40 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
     }
 
     fun showNotification(playPauseBtn: Int) {
+
+        val notificationId = listSongs[position].path.hashCode()
+
         var intent = Intent(this, PlayerActivity::class.java)
         var contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        var prevIntent = Intent(this, PlayerActivity::class.java)
+
+
+        var prevIntent = Intent(this, NotificationReceiver::class.java)
             .setAction(ACTION_PREVIOUS)
-        var prevPending =
-            PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        var pauseIntent = Intent(this, PlayerActivity::class.java)
+        var prevPending = PendingIntent.getBroadcast(
+            this,
+            0,
+            prevIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+
+        var pauseIntent = Intent(this, NotificationReceiver::class.java).setAction(ACTION_PLAY)
         var pausePending =
-            PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE)
-        var nextIntent = Intent(this, PlayerActivity::class.java)
-            .setAction(ACTION_PREVIOUS)
-        var nextPending =
-            PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE)
+
+
+        var nextIntent = Intent(this, NotificationReceiver::class.java)
+            .setAction(ACTION_NEXT)
+        var nextPending = PendingIntent.getBroadcast(
+            this,
+            0,
+            nextIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
 
         var picture: ByteArray? = null
-        picture = getAlbumArt(musicFiles.get(position).path.toUri())
+        picture = getAlbumArt(listSongs.get(position).path.toUri())
 
         var thumb: Bitmap? = null
         if (picture != null) {
@@ -500,8 +535,8 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
         var notification = NotificationCompat.Builder(this, CHANNEL_ID_2)
             .setSmallIcon(playPauseBtn)
             .setLargeIcon(thumb)
-            .setContentTitle(musicFiles.get(position).title)
-            .setContentText(musicFiles.get(position).artist)
+            .setContentTitle(listSongs[position].title)
+            .setContentText(listSongs[position].artist)
             .addAction(R.drawable.skip_previous, "Previous", prevPending)
             .addAction(playPauseBtn, "Pause", pausePending)
             .addAction(R.drawable.skip_next, "Next", nextPending)
@@ -512,10 +547,9 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOnlyAlertOnce(true)
             .build()
+
         var notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0,notification)
-
-
+        notificationManager.notify(notificationId, notification)
     }
 
     fun getAlbumArt(uri: Uri): ByteArray? {
@@ -532,4 +566,6 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
         }
         return null
     }
+
+
 }

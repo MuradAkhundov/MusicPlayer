@@ -9,6 +9,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
+import android.widget.Toast
 import com.muradakhundov.musicplayer.MusicFiles
 import com.muradakhundov.musicplayer.PlayerActivity.Companion.listSongs
 import com.muradakhundov.musicplayer.tool.ActionPlaying
@@ -26,14 +27,36 @@ class MusicService : Service(), OnCompletionListener {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        Log.e("Bind", "Method")
         return mBinder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         var myPosition = intent?.getIntExtra("servicePosition", -1)
-        if (myPosition != -1 && myPosition != null) {
+        var actionName = intent?.getStringExtra("actionName")
+        if (myPosition != -1 && myPosition != null ) {
             playMedia(myPosition)
+        }
+        if (actionName != null){
+            when(actionName){
+                "playPause" -> {
+                    Toast.makeText(this,"PlayPause",Toast.LENGTH_SHORT).show()
+                    if (actionPlaying != null){
+                        actionPlaying.playPauseBtnClicked()
+                    }
+                }
+                "next" -> {
+                    Toast.makeText(this,"next",Toast.LENGTH_SHORT).show()
+                    if (actionPlaying != null) {
+                        actionPlaying.nextBtnClicked()
+                    }
+                }
+                "previous" -> {
+                    Toast.makeText(this,"previous",Toast.LENGTH_SHORT).show()
+                    if (actionPlaying != null) {
+                        actionPlaying.prevBtnClicked()
+                    }
+                }
+            }
         }
         return START_STICKY
 
@@ -48,12 +71,12 @@ class MusicService : Service(), OnCompletionListener {
             if (musicFiles != null) {
                 createMediaPLayer(position)
                 mediaplayer.start()
-            } else {
-                createMediaPLayer(position)
-                mediaplayer.start()
             }
         }
-
+        else {
+            createMediaPLayer(position)
+            mediaplayer.start()
+        }
     }
 
 
@@ -105,13 +128,17 @@ class MusicService : Service(), OnCompletionListener {
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
-        if (actionPlaying !=null){
+        if (actionPlaying != null) {
+            position = (position + 1) % musicFiles.size
             actionPlaying.nextBtnClicked()
         }
         createMediaPLayer(position)
         mediaplayer.start()
         onCompleted()
-
     }
 
+
+    fun setCallBack(actionPlaying : ActionPlaying){
+        this.actionPlaying = actionPlaying
+    }
 }
