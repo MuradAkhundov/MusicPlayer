@@ -164,7 +164,6 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
 //        musicService.start()
 
 
-        showNotification(R.drawable.pause_ic)
         var intent = Intent(this, MusicService::class.java)
         intent.putExtra("servicePosition", position)
         startService(intent)
@@ -489,6 +488,7 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
         musicService.onCompleted()
         binding.songName.text = listSongs.get(position).title
         binding.songArtist.text = listSongs.get(position).title
+        showNotification(R.drawable.pause_ic)
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
