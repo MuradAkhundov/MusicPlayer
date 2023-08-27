@@ -13,6 +13,7 @@ class ApplicationClass : Application() {
         val ACTION_PREVIOUS = "actionprevious"
         val ACTION_NEXT = "actionnext"
         val ACTION_PLAY = "actionplay"
+        val ACTION_SEEK = "actionSeek"
     }
 
     override fun onCreate() {

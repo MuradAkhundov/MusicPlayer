@@ -16,14 +16,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#404040"
+            android:background="#454444"
             >
 
-            <ImageView
+            <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/imageMusic"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:padding="10dp"
+                app:riv_oval="true"
                 android:scaleType="centerCrop"
                 android:src="@color/white"
                 app:layout_constraintTop_toTopOf="parent"
@@ -48,8 +49,8 @@
 
             <ImageView
                 android:id="@+id/moreMenu"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
                 android:src="@drawable/more_ic"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

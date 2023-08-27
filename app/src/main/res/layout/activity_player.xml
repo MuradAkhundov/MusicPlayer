@@ -19,6 +19,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:id="@+id/back_btn"
+            android:layout_marginStart="10dp"
             android:src="@drawable/left_ic"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
@@ -27,23 +28,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:gravity="center"
             android:text="Now Playing"
             android:textColor="@color/white"
-            android:layout_toEndOf="@id/back_btn"
-            android:layout_toStartOf="@id/menu_btn"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            />
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:id="@+id/menu_btn"
-            android:src="@drawable/menu_ic"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            />
+            android:textStyle="bold" />
+
 
     </RelativeLayout>
 
@@ -52,17 +43,20 @@
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:id="@+id/card"
+        android:layout_marginTop="5dp"
         android:layout_below="@id/layout_btn">
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@color/white"
+            app:riv_corner_radius="30dp"
             android:id="@+id/cover_art"/>
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:layout_width="match_parent"
             android:layout_height="250dp"
+            app:riv_corner_radius="30dp"
             android:id="@+id/imageViewGradient"
             android:layout_alignParentBottom="true"/>
 
@@ -132,6 +126,7 @@
             android:src="@drawable/play_ic"
             android:id="@+id/play_pause"
             android:focusable="true"
+            android:backgroundTint="@color/color_accent"
             android:clickable="true"
             android:layout_centerHorizontal="true"/>
 
@@ -185,8 +180,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/seekbar"
+            android:backgroundTint="#FFD493"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
+            android:progressTint="@color/color_accent"
             android:layout_alignParentBottom="true"/>
         
     </RelativeLayout>

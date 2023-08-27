@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
-import android.util.Log
 import android.widget.Toast
 import com.muradakhundov.musicplayer.MusicFiles
 import com.muradakhundov.musicplayer.PlayerActivity.Companion.listSongs
@@ -39,19 +38,16 @@ class MusicService : Service(), OnCompletionListener {
         if (actionName != null){
             when(actionName){
                 "playPause" -> {
-                    Toast.makeText(this,"PlayPause",Toast.LENGTH_SHORT).show()
                     if (actionPlaying != null){
                         actionPlaying.playPauseBtnClicked()
                     }
                 }
                 "next" -> {
-                    Toast.makeText(this,"next",Toast.LENGTH_SHORT).show()
                     if (actionPlaying != null) {
                         actionPlaying.nextBtnClicked()
                     }
                 }
                 "previous" -> {
-                    Toast.makeText(this,"previous",Toast.LENGTH_SHORT).show()
                     if (actionPlaying != null) {
                         actionPlaying.prevBtnClicked()
                     }
@@ -110,7 +106,8 @@ class MusicService : Service(), OnCompletionListener {
         return mediaplayer.duration
     }
 
-    fun createMediaPLayer(position: Int) {
+    fun createMediaPLayer(positionInner: Int) {
+        position =positionInner
         uri = Uri.parse(musicFiles.get(position).path)
         mediaplayer = MediaPlayer.create(baseContext, uri)
     }
@@ -132,9 +129,12 @@ class MusicService : Service(), OnCompletionListener {
             position = (position + 1) % musicFiles.size
             actionPlaying.nextBtnClicked()
         }
-        createMediaPLayer(position)
-        mediaplayer.start()
-        onCompleted()
+        if(mediaplayer !=null){
+            createMediaPLayer(position)
+            mediaplayer.start()
+            onCompleted()
+        }
+
     }
 
 

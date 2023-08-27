@@ -26,7 +26,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.palette.graphics.Palette
@@ -68,6 +67,11 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
 //        mediaPlayer = MediaPlayer()
         musicService = MusicService()
         //playThread , previousThread , nextThread
+
+
+        binding.backBtn.setOnClickListener {
+            super.onBackPressed()
+        }
 
         getIntentMethod()
 
@@ -236,6 +240,7 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
     }
 
 
+    override fun onBackPressed() {}
     override fun onResume() {
         var intent = Intent(this, MusicService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
@@ -479,7 +484,6 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
         var myBinder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = myBinder.getService()
         musicService.setCallBack(this)
-        Toast.makeText(this, "Connected $musicService", Toast.LENGTH_SHORT).show()
         binding.seekbar.max = musicService.getDuration() / 1000
         metaData(uri)
         musicService.onCompleted()
@@ -492,7 +496,8 @@ class PlayerActivity : AppCompatActivity(), ActionPlaying,
 
     fun showNotification(playPauseBtn: Int) {
 
-        val notificationId = listSongs[position].path.hashCode()
+        val notificationId = 0
+
 
         var intent = Intent(this, PlayerActivity::class.java)
         var contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
